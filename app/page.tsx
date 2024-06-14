@@ -7,54 +7,63 @@ import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+import {
+  type ChatEvent,
+  clearCurrentClient,
+  EventTypes,
+  sendMessage,
+  subscribeToTopic,
+  userJoined,
+} from "../utils/momento-web";
+import { Configurations, CredentialProvider, TopicClient, type TopicItem, type TopicSubscribe } from "@gomomento/sdk-web";
 
 Amplify.configure(outputs);
 
 const client = generateClient<Schema>();
 
+const topicClient = new TopicClient({
+  configuration: Configurations.Browser.v1(),
+  credentialProvider: CredentialProvider.fromString({
+    apiKey: 'eyJlbmRwb2ludCI6ImNlbGwtdXMtZWFzdC0xLTEucHJvZC5hLm1vbWVudG9ocS5jb20iLCJhcGlfa2V5IjoiZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUpoYm1SeVpYb3ViVzl5Wlc1dkxtMUFaMjFoYVd3dVkyOXRJaXdpZG1WeUlqb3hMQ0p3SWpvaVJXaDNTMGRvU1ZsRFFVVmhSV2R2VVZveVJuUmFXRTV2WWpOamRHRkhPWHBrUjJ4MVdubEpRU0lzSW1WNGNDSTZNVGN4T0RVeE56WXpOSDAuQkZua2oydEFwa0tKb0oxRFBiSWtGSHZzTlYydFhRbnJHT1ZKdGQtdy1OOCJ9',
+  }),
+});
+
 export default function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
 
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }
-
   useEffect(() => {
-    listTodos();
-  }, []);
+    const resp = topicClient.subscribe(
+      'gameshow-hosting',
+      'testGameId', {
+      onItem: (item) => {
+        console.log('onItem', 'We did it!!!', item);
+      },
+      onError: (error) => {
+        console.log('I ERRORED!!!!', error);
+      },
+    })
+    .then(async () => {
+      console.log("successfully subscribed");
+    })
+    .catch((e) => console.error("error subscribing to topic", e));
+    }, []);
 
-  function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt("Todo content"),
-    });
-  }
-
-  function deleteTodo(id: string) {
-    client.models.Todo.delete({ id })
+  function enableBuzzer() {
+    topicClient.publish('gameshow-hosting', 'testGameId', JSON.stringify({
+      type: 'buzz',
+      playerId: 'player1',
+    }));
   }
 
   return (
     <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li
-            key={todo.id}
-            onClick={() => deleteTodo(todo.id)}>
-              {todo.content}
-          </li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
-      </div>
+      <button onClick={enableBuzzer}>Enable Buzzer</button>
+
+      <div style={
+        {
+          backgroundColor: "red"
+        }
+      }>Bruuuuuuuce</div>
     </main>
   );
 }
