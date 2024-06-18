@@ -24,7 +24,7 @@ const client = generateClient<Schema>();
 const topicClient = new TopicClient({
   configuration: Configurations.Browser.v1(),
   credentialProvider: CredentialProvider.fromString({
-    apiKey: 'eyJlbmRwb2ludCI6ImNlbGwtdXMtZWFzdC0xLTEucHJvZC5hLm1vbWVudG9ocS5jb20iLCJhcGlfa2V5IjoiZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKemRXSWlPaUpoYm1SeVpYb3ViVzl5Wlc1dkxtMUFaMjFoYVd3dVkyOXRJaXdpZG1WeUlqb3hMQ0p3SWpvaVJXaDNTMGRvU1ZsRFFVVmhSV2R2VVZveVJuUmFXRTV2WWpOamRHRkhPWHBrUjJ4MVdubEpRU0lzSW1WNGNDSTZNVGN4T0RVeE56WXpOSDAuQkZua2oydEFwa0tKb0oxRFBiSWtGSHZzTlYydFhRbnJHT1ZKdGQtdy1OOCJ9',
+    apiKey: 'testApiKey',
   }),
 });
 
